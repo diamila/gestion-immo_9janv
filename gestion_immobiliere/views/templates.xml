@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+
+
+
+    <template id="detail" name="Todo Task Detail">
+        <t t-call="website.layout">
+        <div id="wrap" class="container">
+        <h1 t-field="product.name" />
+        <table width="100%">
+         <tbody>
+            <tr>
+             <td>
+                <div class="oe_product_image" style="text-align:left;">
+                            <img t-if="not product.image_medium" t-att-src="'/web/static/src/img/placeholder.png'" height="250" border="1" width="300"/>
+                            <img t-if="product.image_medium" t-att-src="'data:image/png;base64,%s' % to_text(product.image_medium)" height="250" border="1" width="300"/>
+                </div>
+              </td>
+              
+             
+                  
+                 
+             
+              
+             <td> 
+                <div class="col-md-6 col-xl-4 offset-xl-2" id="product_details" >
+                 <h1 itemprop="name" t-field="product.name">Product Name</h1>
+    
+                 <div t-if="product.web_description">
+                     <i class="material-icons"> <span t-field="product.web_description"/></i>
+                    </div>
+                                <hr t-if="product.description_sale" />
+                                <div class="o_not_editable">
+                                    <p t-field="product.description_sale" class="text-muted" />
+                                </div>
+                                 <div t-if="product.name_categ_id == 'terrain' and product.name_categ_id == 'Terrain'">
+                   <div t-if="product.superficie">
+                    <i class="material-icons">Superficie: <span t-field="product.superficie"/></i>
+                  </div>
+                </div>
+                
+                <div>
+                     <p class="text-muted">
+                                  30-day money-back guarantee<br />
+                                  Free Shipping in U.S.<br />
+                                  Buy now, get in 2 days
+                                </p>
+                     <a role="menuitem" rel="noindex,nofollow" t-att-href="keep('/https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15438.888445307135!2d-17.467686399999998!3d14.6717054!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xec16d63db2a9e4d%3A0x4e3727affd9a03a6!2sTERROU-BI%20RESORT!5e0!3m2!1sfr!2ssn!4v1606731809395!5m2!1sfr!2ssn')" class="dropdown-item">
+                        <span>Nombres de piéces : croissant</span>
+                        </a>
+                </div>
+                
+    
+                <div t-if="product.name_categ_id != 'terrain' and product.name_categ_id != 'Terrain'">
+                     <div t-if="product.nbre_tour">
+                                     <i class="material-icons">Niveau: <span t-field="product.nbre_tour"/></i>
+                    </div>
+                    <div t-if="product.chambres">
+                                     <i class="material-icons"> <span t-field="product.chambres"/> Chambre(s)</i>
+                    </div>
+    
+                    <div t-if="product.salons">
+                        <i class="material-icons"><span t-field="product.salons"/> Salon(s)</i>
+                    </div>
+    
+                     <div t-if="product.cuisines">
+                        <i class="material-icons"><span t-field="product.cuisines"/> Cuisine(s)</i>
+                    </div>
+                    <div t-if="product.toilette">
+                        <i class="material-icons"><span t-field="product.toilette"/> Toilette(s)</i>
+                    </div>
+                    <div t-if="product.salles_bain">
+                        <i class="material-icons"><span t-field="product.salles_bain"/> Salles de bain(s)</i>
+                    </div>
+    
+                    <div t-if="product.cour">
+                        <i class="material-icons"><span t-field="product.cour"/> Cour(s)</i>
+                    </div>
+    
+                    <div t-if="product.parking">
+                                    <i class="material-icons"><span t-field="product.parking"/> Parking(s)</i>
+                    </div>
+                    <div t-if="product.balcon">
+                                    <i class="material-icons"><span t-field="product.balcon"/> Balcon(s)</i>
+                    </div>
+    
+                    <div t-if="product.jardin == True">
+                                    <i class="material-icons">Jardin</i>
+                    </div>
+                    <div t-if="product.ascenseur == True">
+                                    <i class="material-icons">Ascenseur</i>
+                    </div>
+    
+                    <div t-if="product.g_electroge == True">
+                                    <i class="material-icons">Groupe electrogène</i>
+                    </div>
+                </div>
+                <br></br>
+                <div>
+                    <div>
+                    <p>Rue: <span t-field="product.rue"/></p>
+                </div>
+    
+                   <i class="fa fa-map-marker"></i>
+                        <span t-field="product.name_adresse" data-oe-model="res.company" data-oe-id="1" data-oe-field="phone" data-oe-type="char" data-oe-expression="res_company.phone" class="o_force_ltr">33 827 39 82 - 77 57134 86</span>
+    
+                </div>
+                <div>
+                    <p>Ville: <span t-field="product.nom_ville"/></p>
+                </div>
+                                <hr />
+                                <p class="text-muted">
+                                  30-day money-back guarantee<br />
+                                  Free Shipping in U.S.<br />
+                                  Buy now, get in 2 days
+                                </p>
+                </div>
+                
+                
+                     
+            </td>
+            </tr>
+                    
+            </tbody>
+            </table>
+        </div>
+        </t>
+    </template>
+
+
+
+    <template id="index" name="Bien  List">
+        <t t-call="website.layout">
+            <div class="container" id="wrap">
+
+                    <t t-foreach="product" t-as="task">
+                         <t t-if="task.etat != 'confirm' and task.state_vente != 'confirm'" default_group_by="product.name_adresse">
+                        <div class="row">
+                         <div class="oe_product_image">
+                            <img t-if="not task.image_medium" t-att-src="'/web/static/src/img/placeholder.png'" height="120" border="1" width="120"/>
+                            <img t-if="task.image_medium" t-att-src="'data:image/png;base64,%s' % to_text(task.image_medium)" height="120" border="1" width="120"/>
+                         </div>
+                            <div>
+                                <a t-attf-href="/todo/{{slug(task)}}">
+                                    <span t-field="task.name"/>
+                                </a>
+                           </div>
+                             <div> <p t-field="task.list_price"/>  </div>
+                             <div> <p t-field="task.name_adresse"/>  </div>
+                        </div>
+                         </t>
+                    </t>
+
+
+
+            </div>
+        </t>
+        </template>
+
+
+
+
+    
+
+
+    <template id="hello" name="Hello Template">
+        <h1>Hello World !</h1>
+    </template>
+
+
+
+</odoo>

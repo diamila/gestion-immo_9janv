@@ -1,0 +1,294 @@
+<odoo>
+    <data>
+        <!--  -->
+        <!--   <record id="object0" model="gestion_immobiliere.gestion_immobiliere"> -->
+        <!--     <field name="name">Object 0</field> -->
+        <!--     <field name="value">0</field> -->
+        <!--   </record> -->
+        <!--  -->
+        <!--   <record id="object1" model="gestion_immobiliere.gestion_immobiliere"> -->
+        <!--     <field name="name">Object 1</field> -->
+        <!--     <field name="value">10</field> -->
+        <!--   </record> -->
+        <!--  -->
+        <!--   <record id="object2" model="gestion_immobiliere.gestion_immobiliere"> -->
+        <!--     <field name="name">Object 2</field> -->
+        <!--     <field name="value">20</field> -->
+        <!--   </record> -->
+        <!--  -->
+        <!--   <record id="object3" model="gestion_immobiliere.gestion_immobiliere"> -->
+        <!--     <field name="name">Object 3</field> -->
+        <!--     <field name="value">30</field> -->
+        <!--   </record> -->
+        <!--  -->
+        <!--   <record id="object4" model="gestion_immobiliere.gestion_immobiliere"> -->
+        <!--     <field name="name">Object 4</field> -->
+        <!--     <field name="value">40</field> -->
+        <!--   </record> -->
+        <!--  -->
+        
+        
+        
+         
+        
+
+        <record model="lb.type_piece" id="c1">
+            <field name="type_piece">Salon</field>
+            <!-- no description for this one -->
+        </record>
+        <record model="lb.type_piece" id="c2">
+            <field name="type_piece">Chambre Parent</field>
+        </record>
+
+        <record model="lb.type_piece" id="c3">
+            <field name="type_piece">Chambre Enfant</field>
+            <!-- no description for this one -->
+        </record>
+        <record model="lb.type_piece" id="c4">
+            <field name="type_piece">Chambre visiteur</field>
+        </record>
+
+        <record model="lb.type_piece" id="c5">
+            <field name="type_piece">Cuisine</field>
+            <!-- no description for this one -->
+        </record>
+        <record model="lb.type_piece" id="c6">
+            <field name="type_piece">Toilette</field>
+        </record>
+        
+        
+        
+        
+       
+       
+       
+ 
+        <record model="lb.type_lieu" id="l1">
+            <field name="type_lieu">Restaurant</field>
+            <!-- no description for this one -->
+        </record>
+        <record model="lb.type_lieu" id="l2">
+            <field name="type_lieu">Hotel</field>
+        </record>
+
+        <record model="lb.type_lieu" id="l3">
+            <field name="type_lieu">Marché</field>
+            <!-- no description for this one -->
+        </record>
+        <record model="lb.type_lieu" id="l4">
+            <field name="type_lieu">Plage</field>
+        </record>
+
+        <record model="lb.type_lieu" id="l5">
+            <field name="type_lieu">Mosquée</field>
+            <!-- no description for this one -->
+        </record>
+        <record model="lb.type_lieu" id="l6">
+            <field name="type_lieu">Espace de loisirs</field>
+        </record>
+        
+        
+        
+        <record model="lb.ville" id="v1">
+            <field name="nom">Dakar</field>
+        </record>
+        
+         <record model="lb.ville" id="v2">
+            <field name="nom">Mbour</field>
+        </record>
+        
+        
+        
+        <record model="lb.quartier" id="q1">
+            <field name="nom_quartier">Fann Hock</field>
+                     
+        </record>
+        
+        <record model="lb.quartier" id="q2">
+            <field name="nom_quartier">liberté 6</field>
+        </record>
+        
+        
+        <record model="lb.quartier" id="q3">
+            <field name="nom_quartier">Mermoz</field>
+        </record>
+        
+        <record model="lb.quartier" id="q4">
+            <field name="nom_quartier">Sacré Coeur</field>
+        </record>
+        
+        <record model="lb.quartier" id="q5">
+            <field name="nom_quartier">Amitié</field>
+        </record>
+        
+        <record model="lb.quartier" id="q6">
+            <field name="nom_quartier">Mamelles</field>
+        </record>
+        
+        <record model="lb.quartier" id="q7">
+            <field name="nom_quartier">Almadies</field>
+        </record>
+        
+        
+        <record model="lb.quartier" id="q8">
+            <field name="nom_quartier">Ngor</field>
+        </record>
+        
+        
+        <record model="lb.quartier" id="q9">
+            <field name="nom_quartier">Yoff</field>
+        </record>
+        
+        <record model="lb.quartier" id="q10">
+            <field name="nom_quartier">Grand Mbour</field>
+        </record>
+        
+        
+        <record model="lb.quartier" id="q11">
+            <field name="nom_quartier">Mariste</field>
+        </record>
+        
+          <record model="lb.quartier" id="q12">
+            <field name="nom_quartier">Liberté 6</field>
+        </record>
+        
+        
+        <record model="lb.quartier" id="q13">
+            <field name="nom_quartier">Fann Résidence</field>
+        </record>
+        
+        
+        
+        
+        <record model="product.public.category" id="cat_l_p">
+            <field name="name">Bien à louer</field>
+        </record>
+
+         <record model="product.public.category" id="cat_v_p">
+            <field name="name">Bien à vendre</field>
+        </record>
+
+
+        <record model="product.public.category" id="cat_l_1">
+            <field name="name">Appartement</field>
+            <field name="parent_id" ref="cat_l_p"/>
+        </record>
+
+
+        <record model="product.public.category" id="cat_v_1">
+            <field name="name">Appartement</field>
+            <field name="parent_id" ref="cat_v_p"/>
+        </record>
+
+
+         <record model="product.public.category" id="cat_l_2">
+            <field name="name">Studio</field>
+            <field name="parent_id" ref="cat_l_p"/>
+        </record>
+
+
+        <record model="product.public.category" id="cat_v_2">
+            <field name="name">Studio</field>
+            <field name="parent_id" ref="cat_v_p"/>
+        </record>
+
+         <record model="product.public.category" id="cat_l_3">
+            <field name="name">Terrain</field>
+            <field name="parent_id" ref="cat_l_p"/>
+        </record>
+
+
+        <record model="product.public.category" id="cat_v_3">
+            <field name="name">Terrain</field>
+            <field name="parent_id" ref="cat_v_p"/>
+        </record>
+
+
+                 <record model="product.public.category" id="cat_l_4">
+            <field name="name">Magasin</field>
+            <field name="parent_id" ref="cat_l_p"/>
+        </record>
+
+
+        <record model="product.public.category" id="cat_v_4">
+            <field name="name">Magasin</field>
+            <field name="parent_id" ref="cat_v_p"/>
+        </record>
+        
+        
+         <record model="product.public.category" id="cat_l_5">
+            <field name="name">Chambre</field>
+            <field name="parent_id" ref="cat_l_p"/>
+        </record>
+
+
+        <record model="product.public.category" id="cat_v_5">
+            <field name="name">Chambre</field>
+            <field name="parent_id" ref="cat_v_p"/>
+        </record>
+
+
+
+        <record model="product.public.category" id="cat_l_6">
+            <field name="name">Villa</field>
+            <field name="parent_id" ref="cat_l_p"/>
+        </record>
+
+
+        <record model="product.public.category" id="cat_v_6">
+            <field name="name">Villa</field>
+            <field name="parent_id" ref="cat_v_p"/>
+        </record>
+
+
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <record model="product.category" id="cat_b1">
+            <field name="name">Appartement</field>
+        </record>
+
+
+         <record model="product.category" id="cat_b2">
+            <field name="name">Studio</field>
+        </record>
+
+
+
+
+        <record model="product.category" id="cat_b3">
+            <field name="name">Terrain</field>
+        </record>
+
+
+                 <record model="product.public.category" id="cat_b4">
+            <field name="name">Magasin</field>
+        </record>
+        
+        <record model="product.category" id="cat_b5">
+            <field name="name">Chambre</field>
+        </record>
+
+
+                 <record model="product.public.category" id="cat_b6">
+            <field name="name">Villa</field>
+        </record>
+
+        
+
+        
+        
+    </data>
+</odoo>
