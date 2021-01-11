@@ -16,9 +16,7 @@ class BienNormal_desc(models.Model):
     @api.onchange('longitude', 'latitude')
     def get_localisation(self):
         for rec in self:
-            rec.google_map_partner = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15438.888445307135!2d-' + str(
-                rec.longitude) + '!3d' + str(
-                rec.latitude) + '!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xec16d63db2a9e4d%3A0x4e3727affd9a03a6!2sTERROU-BI%20RESORT!5e0!3m2!1sfr!2ssn!4v1606731809395!5m2!1sfr!2ssn'
+            rec.google_map_partner = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15438.888445307135!2d-' + str(rec.longitude) + '!3d' + str(rec.latitude) + '!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xec16d63db2a9e4d%3A0x4e3727affd9a03a6!2sTERROU-BI%20RESORT!5e0!3m2!1sfr!2ssn!4v1606731809395!5m2!1sfr!2ssn'
 
     @api.onchange('superficie', 'name_adresse', 'name_categ_id', '  chambres', 'salons', 'salles_bain', 'cuisines',
                   'toilette', 'parking', 'balcon')
@@ -37,7 +35,8 @@ class BienNormal_desc(models.Model):
 
 class BienNormal_template_etat(models.Model):
     _inherit = 'product.template'
-
+    
+    
     @api.model
     def _get_default_country(self):
         country = self.env['res.country'].search([('code', '=', 'MA')], limit=1)
@@ -46,9 +45,9 @@ class BienNormal_template_etat(models.Model):
     pays_site = fields.Many2one('res.country', string="Pays", default=_get_default_country)
 
     name_pays_site = fields.Char(string="Nom Quartier", related='pays_site.name')
-
+    
     name = fields.Char('Name', index=True, required=True, translate=True)
-
+    
     superficie_site = fields.Float(String="Superficie(m²)")
 
     quartier_site = fields.Many2one('lb.quartier', string="Quartier", required=True)
@@ -58,6 +57,58 @@ class BienNormal_template_etat(models.Model):
     rue_site = fields.Char(string="Rue")
 
     ville_site = fields.Many2one('lb.ville', string="Ville")
+    
+    @api.model
+    def default_get(self, fields):
+        res = super(BienNormal_template_etat, self).default_get(fields)
+        print("test......")
+        res['ville_site'] = 1
+        res['public_categ_ids'] = 35
+        return res
+    
+    public_categ_ids = fields.Many2many('product.public.category', string='Website Product Category', required=True,
+                                        help="The product will be available in each mentioned e-commerce category. Go to"
+                                             "Shop > Customize and enable 'E-commerce categories' to view all e-commerce categories."
+                                        )
+                                        
+    name_categ_id = fields.Char(related='categ_id.name', string="Catégorie du Bien")                               
+
+    parent_id = fields.Many2one('product.public.category', string='Parent Category',
+                                related='public_categ_ids.parent_id')
+
+    @api.onchange('parent_id', 'name_categ_id')
+    def _onchange_actions(self):
+        if self.type == 'service':
+            if self.name_categ_id == 'Appartement':
+                return {
+                    'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à louer'), ('name', '=', 'Appartement')]}}
+            if self.name_categ_id == 'Studio':
+                return {'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à louer'), ('name', '=', 'Studio')]}}
+            if self.name_categ_id == 'Terrain':
+                return {'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à louer'), ('name', '=', 'Terrain')]}}
+            if self.name_categ_id == 'Magasin':
+                return {'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à louer'), ('name', '=', 'Magasin')]}}
+            if self.name_categ_id == 'Villa':
+                return {'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à louer'), ('name', '=', 'Villa')]}}
+            if self.name_categ_id == 'Chambre':
+                return {'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à louer'), ('name', '=', 'Chambre')]}}
+            else:
+                return {'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à louer')]}}
+        if self.type == 'consu':
+            if self.name_categ_id == 'Appartement':
+                return {
+                    'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à vendre'), ('name', '=', 'Appartement')]}}
+            if self.name_categ_id == 'Studio':
+                return {'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à vendre'), ('name', '=', 'Studio')]}}
+            if self.name_categ_id == 'Terrain':
+                return {'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à vendre'), ('name', '=', 'Terrain')]}}
+            if self.name_categ_id == 'Magasin':
+                return {'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à vendre'), ('name', '=', 'Magasin')]}}
+            if self.name_categ_id == 'Villa':
+                return {'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à vendre'), ('name', '=', 'Villa')]}}
+            else:
+                return {'domain': {'public_categ_ids': [('parent_id', '=', 'Bien à vendre')]}}
+    
 
     nom_ville_site = fields.Char(string="Ville", related='ville_site.nom')
 
@@ -136,6 +187,11 @@ class BienNormal(models.Model):
     _inherit = 'product.product'
 
 
+
+    @api.model
+    def _get_default_country(self):
+        country = self.env['res.country'].search([('code', '=', 'MA')], limit=1)
+        return country
 
     ref = fields.Char(string="ref", default="00125")
 
@@ -274,14 +330,9 @@ class BienNormal(models.Model):
         for r in self:
             r.nom_ville = r.nom_ville_site
 
-    @api.model
-    def _get_default_country(self):
-        country = self.env['res.country'].search([('code', '=', 'MA')], limit=1)
-        return country
-
     pays = fields.Many2one('res.country', string="Pays", dcompute='_fon_pays')
 
-
+    
     @api.onchange('pays_site')
     def _fon_pays(self):
         for r in self:
@@ -464,11 +515,13 @@ class BienNormal(models.Model):
 
     @api.multi
     def print_report(self):
-        return self.env.ref('gestion_immobiliere.contrat_bailleur').report_action(self)
+        return self.env.ref('location_biens.contrat_bailleur').report_action(self)
 
     name_categ_id = fields.Char(related='categ_id.name', string="Catégorie du Bien")
+    
 
-    superficie = fields.Float(String="Superficie(m²)", compute='_fon_superficie')
+    superficie = fields.Float(String="Superficie(m²)",compute='_fon_superficie')
+    
 
     @api.onchange('superficie_site')
     def _fon_superficie(self):
@@ -486,6 +539,8 @@ class BienNormal_template_product(models.Model):
                                         help="The product will be available in each mentioned e-commerce category. Go to"
                                              "Shop > Customize and enable 'E-commerce categories' to view all e-commerce categories."
                                         )
+                                        
+                                   
 
     parent_id = fields.Many2one('product.public.category', string='Parent Category',
                                 related='public_categ_ids.parent_id')
@@ -627,16 +682,19 @@ class CRM(models.Model):
 
     active_potenctiels = fields.Selection(
         [('client', 'est un Client'), ('prospect', 'Est Un Prospect')],
-        string="Statut contact", related='partner_id.active_potenctiel', default='prospect', compute='_onchange_stage_id_ac')
+        string="Statut contact", related='partner_id.active_potenctiel', default='prospect',  compute='_onchange_stage_i')
+        
+    #name_stage = fields.Char(related="stage_id.name")    
+    
+    @api.onchange('probability')
+    def _onchange_active_potenctielst(self):
+        if self.probability == 0:
+            for task in self:
+                task.partner_id.active = not task.partner_id.active
+                return self.write(
+                    {'active': False, 'task.partner_id.active': False})
+            
     # test = fields.Boolean(compute='create_locataire')
-
-
-    @api.onchange('stage_id')
-    def _onchange_stage_id_ac(self):
-        if self.stage_id== 'Gagné':
-            self.partner_id.active = 'client'
-            return True
-
 
     client_type = fields.Selection(
         [('client_ache', 'Client Acheteur'), ('client_loc', 'Client Locataire')],
@@ -645,7 +703,7 @@ class CRM(models.Model):
     @api.onchange('probability')
     def _onchange_stage_i(self):
         if self.probability == 0:
-            self.partner_id.active = False
+            self.active = False
             return True
 
     active_test = fields.Boolean(related='partner_id.active')
@@ -658,8 +716,6 @@ class CRM(models.Model):
             task.probability = 0
             return self.write(
                 {'probability': 0, 'active': False, 'active_test': False, 'task.partner_id.active': False})
-
-
 
     @api.multi
     def action_set_won(self):
@@ -723,17 +779,21 @@ class CRM(models.Model):
             'type': 'ir.actions.act_window',
         }
 
-
 class CRM_suite(models.Model):
     _inherit = 'crm.lead'
 
-    type_besoin = fields.Text(string="Besoin du prospect")
+    type_besoin = fields.Text(related='partner_id.type_besoin', string="Besoin du prospect", required=True)
+
+  
+    
+    planned_revenue = fields.Float(related='partner_id.planned_revenue', string="Budget", default=0.0, compute='_onchangebudget', required=True)
+        
 
 
 class CRM_quartier_souhaitee(models.Model):
     _inherit = 'crm.lead'
 
-    quartier_souhaitee = fields.Many2many('lb.quartier', string="Quartiers souhaités")
+    quartier_souhaitee = fields.Many2many('lb.quartier', related='partner_id.quartier_souhaitee', string="Quartiers souhaités", required=True)
 
 
 class CRM_locatire(models.Model):

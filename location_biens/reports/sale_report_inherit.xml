@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+      <template id="sale_report_facture" inherit_id="account.report_invoice_document">
+
+
+
+
+           <xpath expr="//div[@class='row mt32 mb32']" position="replace">
+                <div id="informations_facture" class="row mt32 mb32">
+                        <div class="col-auto mw-100 mb-2" t-if="o.name" name="description">
+                            <strong>Description:</strong>
+                            <p class="m-0" t-field="o.name"/>
+                        </div>
+                        <div class="col-auto mw-100 mb-2" t-if="o.date_invoice" name="invoice_date">
+                            <strong>Date de facturation:</strong>
+                            <p class="m-0" t-field="o.date_invoice"/>
+                        </div>
+                        <div class="col-auto mw-100 mb-2" t-if="o.date_due and o.type == 'out_invoice' and o.state in ('open', 'in_payment', 'paid')" name="due_date">
+                            <strong>Due Date:</strong>
+                            <p class="m-0" t-field="o.date_due"/>
+                        </div>
+                        <div class="col-auto mw-100 mb-2" t-if="o.origin" name="origin">
+                            <strong>Source:</strong>
+                            <p class="m-0" t-field="o.origin"/>
+                        </div>
+                        <div class="col-auto mw-100 mb-2" t-if="o.partner_id.ref" name="customer_code">
+                            <strong>Customer Code:</strong>
+                            <p class="m-0" t-field="o.partner_id.ref"/>
+                        </div>
+
+                        <div name="reference" class="col-auto mw-100 mb-2" t-if="o.reference and o.type_bien != 'service'">
+                            <strong>Reference:</strong>
+                            <p class="m-0" t-field="o.reference"/>
+                        </div>
+
+                        <br/>
+
+                        <div class="col-auto mw-100 mb-2" t-if="o.type_bien">
+                          <strong>type Bien:</strong>
+                             <p class="m-0" t-field="o.type_bien"/>
+                         </div>
+
+                         <div class="col-auto mw-100 mb-2" t-if="o.mois_payee_c and o.type_bien == 'service'">
+                          <strong>mois loyer:</strong>
+                             <p class="m-0" t-field="o.mois_payee_c"/>
+                         </div>
+                 </div>
+       </xpath>
+
+        <xpath expr="//table[@class='table table-sm o_main_table']" position="replace">
+            <table class="table table-sm o_main_table" name="invoice_line_facture">
+                      <thead>
+                            <tr>
+                                <!-- TODO: remove in master -->
+                                <t t-set="colspan" t-value="6"/>
+                                <th class="text-left"><span>Description</span></th>
+                                <th class="d-none text-left"><span>Source Document</span></th>
+
+                                <th t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}"><span>Prix</span></th>
+                                <th t-if="display_discount" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                    <span>Disc.(%)</span>
+                                    <!-- TODO: remove in master -->
+                                    <t t-set="colspan" t-value="colspan+1"/>
+                                </th>
+                                <th t-attf-class="text-left {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}"><span>Taxes</span></th>
+                                <th class="text-right">
+                                    <span groups="account.group_show_line_subtotals_tax_excluded">Amount</span>
+                                    <span groups="account.group_show_line_subtotals_tax_included">Total Price</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="invoice_tbody">
+                            <t t-set="current_subtotal" t-value="0"/>
+
+                            <t t-foreach="o.invoice_line_ids" t-as="line">
+
+                                <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                <t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+
+                                <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                    <t t-if="not line.display_type" name="account_invoice_line_accountable">
+                                        <td name="account_invoice_line_name"><span t-field="line.name"/></td>
+                                        <td class="d-none"><span t-field="line.origin"/></td>
+
+                                        <td t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                            <span t-field="line.price_unit"/>
+                                        </td>
+                                        <td t-if="display_discount" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                            <span t-field="line.discount"/>
+                                        </td>
+                                        <td t-attf-class="text-left {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                                            <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.invoice_line_tax_ids))"/>
+                                        </td>
+                                        <td class="text-right o_price_total">
+                                            <span t-field="line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                            <span t-field="line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+                                        </td>
+                                    </t>
+                                    <t t-if="line.display_type == 'line_section'">
+                                        <td colspan="99">
+                                            <span t-field="line.name"/>
+                                        </td>
+                                        <t t-set="current_section" t-value="line"/>
+                                        <t t-set="current_subtotal" t-value="0"/>
+                                    </t>
+                                    <t t-if="line.display_type == 'line_note'">
+                                        <td colspan="99">
+                                            <span t-field="line.name"/>
+                                        </td>
+                                    </t>
+                                </tr>
+
+                                <t t-if="current_section and (line_last or o.invoice_line_ids[line_index+1].display_type == 'line_section')">
+                                    <tr class="is-subtotal text-right">
+                                        <td colspan="99">
+                                            <strong class="mr16">Subtotal</strong>
+                                            <span
+                                                t-esc="current_subtotal"
+                                                t-options='{"widget": "monetary", "display_currency": o.currency_id}'
+                                            />
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </tbody>
+                    </table>
+
+       </xpath>
+
+
+</template>
+
+
+
+
+
+ <template id="sale_report_desactive" inherit_id="website_sale.product">
+
+        <xpath expr="//div[@class='js_product js_main_product']" position="replace">
+            <div class="row mt32 mb32" id="desactive_panier">
+                                    <t t-placeholder="select">
+                                        <input type="hidden" class="product_id" name="product_id" t-att-value="product_variant.id" />
+                                        <input type="hidden" class="product_template_id" name="product_template_id" t-att-value="product.id" />
+                                        <t t-if="first_possible_combination" t-call="sale.variants">
+                                            <t t-set="ul_class" t-value="'flex-column'" />
+                                            <t t-set="parent_combination" t-value="None" />
+                                        </t>
+                                        <t t-else="">
+                                            <ul class="d-none js_add_cart_variants" t-att-data-attribute_exclusions="{'exclusions: []'}"/>
+                                        </t>
+                                    </t>
+                                    <t t-call="website_sale.product_price" />
+                                    <p t-if="True" class="css_not_available_msg alert alert-warning">This combination does not exist.</p>
+                                   <!-- <a role="button" id="add_to_cart" class="btn btn-primary btn-lg mt8 js_check_product a-submit" href="#">Add to Cart</a>-->
+            </div>
+        </xpath>
+
+         <xpath expr="//div[@class='o_not_editable']" position="after">
+
+             <div t-if="product.name_categ_id_t == 'terrain' and product.name_categ_id_t == 'Terrain'">
+               <div t-if="product.superficie_t">
+                <p> <i class="fa fa-map-marker"></i>Superficie: <span t-field="product.superficie_t"/></p>
+              </div>
+            </div>
+
+             <div t-if="product.name_categ_id_t != 'terrain' and product.name_categ_id_t != 'Terrain'">
+                 <div t-if="product.nbre_tour_t">
+                                 <p> <i class="fa fa-map-marker"></i>Niveau: <span t-field="product.nbre_tour_t"/></p>
+                </div>
+                <div t-if="product.chambres_t">
+                                <p> <i class="fa fa-home"></i> <span t-field="product.chambres_t"/> Chambre(s)</p>
+                </div>
+
+                <div t-if="product.salons_t">
+                    <p> <i class="fa fa-building"></i><span t-field="product.salons_t"/> Salon(s)</p>
+                </div>
+
+                 <div t-if="product.cuisines_t">
+                    <p> <i class="fas fa-hat-chef"></i><span t-field="product.cuisines_t"/> Cuisine(s)</p>
+                </div>
+                <div t-if="product.toilette_t">
+                    <p> <i class="fas fa-faucet"></i><span t-field="product.toilette_t"/> Toilette(s)</p>
+                </div>
+                <div t-if="product.salles_bain_t ">
+                   <p> <i class="fas fa-toilet"></i><span t-field="product.salles_bain_t"/> Salles de bain(s)</p>
+                </div>
+
+                <div t-if="product.cour">
+                   <p> <i class="fa fa-map-marker"></i><span t-field="product.cour"/> Cour(s)</p>
+                </div>
+
+                <div t-if="product.parking">
+                                <p> <i class="fas fa-parking"></i><span t-field="product.parking"/> Parking(s)</p>
+                </div>
+                <div t-if="product.balcon">
+                                <p> <i class="fa fa-container-storage"></i>><span t-field="product.balcon"/> Balcon(s)</p>
+                </div>
+
+                <div t-if="product.jardin == True">
+                                <p><i class="fas fa-tree"></i>Jardin</p>
+                </div>
+                <div t-if="product.ascenseur == True">
+                               <p> <i class="fa fa-map-marker"></i>Ascenseur</p>
+                </div>
+
+                <div t-if="product.g_electroge == True">
+                                <p> <i class="fa fa-map-marker"></i>Groupe electrogène</p>
+                </div>
+            </div>
+            <br></br>
+            <div>
+                <div>
+                <p><i class="fas fa-building"></i> Rue: <span t-field="product.rue"/></p>
+            </div>
+
+               <i class="fa fa-map-marker"></i>
+                    <span t-field="product.quartier_site" data-oe-model="res.company" data-oe-id="1" data-oe-field="phone" data-oe-type="char" data-oe-expression="res_company.phone" class="o_force_ltr">33 827 39 82 - 77 57134 86</span>
+
+            </div>
+            <div>
+                <p><i class="fas fa-building"></i> Ville: <span t-field="product.nom_ville_t"/></p>
+            </div>
+            
+          
+
+         </xpath>
+ </template>
+
+
+
+      <!-- Product item used by /shop and /shop/cart -->
+    <template id="Products_bien_dispo_location" inherit_id="website_sale.products_item">
+        
+         
+    
+    
+        <xpath expr="//div[@itemscope='itemscope']" position="replace">
+        <div id="bien_disponible_shop" itemscope="itemscope" itemtype="http://schema.org/Product" >
+                <div class="ribbon-wrapper">
+                    <a href="#" role="button" class="ribbon btn btn-danger">Sale</a>
+                </div>
+                <div class="oe_product_image"  t-if="product.etat_b != 'confirm' and product.state_vente_t != 'confirm'">
+                    <a itemprop="url" t-att-href="product_href">
+                         <span t-field="product.image" t-options="{'widget': 'image'}" style="height:600px; width:800px"/>
+                    </a>
+                </div>
+                
+                 <div class="oe_product_image"  t-if="product.etat_b == 'confirm' and product.etat_b == 'confirm'">
+                         <span t-field="product.image" t-options="{'widget': 'image'}" style="height:600px; width:800px"/>
+                </div>
+                
+                <t t-if="show_publish">
+                    <div id="website_published_button" class="" groups="sales_team.group_sale_manager">
+                        <t t-call="website.publish_management">
+                            <t t-set="object" t-value="product" />
+                            <t t-set="publish_edit" t-value="True" />
+                            <t t-set="action" t-value="'product.product_template_action'" />
+                        </t>
+                    </div>
+                </t>
+                <section>
+                    <h6 t-if="product.etat_b != 'confirm' and product.state_vente_t != 'confirm'">
+                        <a itemprop="name" t-att-href="product_href" t-att-content="product.name" t-field="product.name" style="color:#243742"/>
+                        <a role="button" t-if="not show_publish and not product.website_published" t-att-href="product_href" class="btn btn-secondary btn-sm btn-danger" title="This product is unpublished.">Non Publié</a>
+                    </h6>
+                    
+    
+                    <div itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer" class="product_price">
+                        <b>
+                            <t t-if="True"><!-- compatibility 12.0 -->
+                                <del t-attf-class="text-danger mr8 {{'' if combination_info['has_discounted_price'] else 'd-none'}}" style="white-space: nowrap;" t-esc="combination_info['list_price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}" />
+                            </t>
+                            <span t-if="combination_info['price']" t-esc="combination_info['price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                            <span itemprop="price" style="display:none;" t-esc="combination_info['price']" />
+                            <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
+                        </b>
+                    </div>
+                    
+                    
+                     
+                     <div>
+                         <t  t-if="product.etat_b == 'confirm' and product.state_vente_t == 'confirm'" ><span t-field="product.name"/></t>
+                        <p>
+                        <span t-field="product.quartier_site"/>,
+                         <t t-if="product.name_categ_id_t != 'terrain' and product.name_categ_id_t != 'Terrain'"><span t-field="product.default_code"/> piéces</t>
+                          <t t-if="product.superficie_site">S= <span t-field="product.superficie_site"/>m2</t>
+                        </p>
+                     </div>
+                     <div>
+                        
+                         <t t-if="product.etat_b == 'confirm'"><p style="color: white;background-color:black;">Bien en location</p></t>
+                          <t t-if="product.state_vente_t == 'confirm'"><p style="color: white;background-color:black;">Bien déja vendu</p></t>
+                          
+                     </div>
+                </section>
+            </div>
+        </xpath>
+    </template>
+
+
+
+
+<template id="sort_test" inherit_id="website_sale.sort" active="True" customize_show="True" name="Show Sort by">
+         <xpath expr="//div[@class='dropdown-menu']" position="before">
+             
+                <div class="dropdown-menu" role="menu" id="trier_location">
+                    <t t-foreach="website_sale_sortable" t-as="sortby">
+                        <a role="menuitem" rel="noindex,nofollow" t-att-href="keep('/shop', order=sortby[1])" class="dropdown-item">
+                            <span t-raw="sortby[0]"/>
+                        </a>
+                    </t>
+                   
+                    <a role="menuitem" rel="noindex,nofollow" t-att-href="keep('/shop', order='default_code asc')" class="dropdown-item">
+                        <span>Nombres de piéces : croissant</span>
+                    </a>
+                 
+                    <a role="menuitem" rel="noindex,nofollow" t-att-href="keep('/shop', order='superficie_site asc')" class="dropdown-item">
+                        <span>Superficie : croissant</span>
+                    </a>
+                   
+
+                    <a role="menuitem" rel="noindex,nofollow" t-att-href="keep('/shop', order='rue_site asc')" class="dropdown-item">
+                        <span>Rue : A à Z</span>
+                    </a>
+
+                </div>
+
+        </xpath>
+    </template>
+
+
+
+
+
+    <!--
+
+    <template id="products_categories_location_bien" name="Collapsible Category List" inherit_id="website_sale.products_categories" active="False" customize_show="True">
+          <xpath expr="//ul[@class='nav nav-pills flex-column mt16']" position="replace">
+            <ul class="nav nav-pills flex-column mt16" id="location_categorie_update" style="background-color:#5D8DA8">
+                <li class="nav-item">
+                    <a t-att-href="keep('/shop',category=0)" t-attf-class="nav-link#{'' if category else ' active'} o_not_editable">Tous les biens</a>
+                </li>
+                <t t-foreach="categories" t-as="categ">
+                    <t t-call="website_sale.option_collapse_categories_recursive" />
+                </t>
+            </ul>
+        </xpath>
+    </template>-->
+    
+    
+
+
+
+    <template id="products_attribute_location" inherit_id="website_sale.products" active="False" customize_show="True" name="Product Attribute's Filters">
+        <xpath expr="//div[@id='products_grid_before']" position="attributes">
+            <attribute name="style">background-color:#f5f5f5</attribute>   
+        </xpath>
+        
+        
+         <!--<xpath expr="//div[@class='js_sale']" position="replace">
+         <div id="wrap_location" class="js_sale">
+                <div class="oe_structure" id="oe_structure_website_sale_products_1"/>
+                <div class="container py-2 oe_website_sale" style="width=1000px">
+                    <div class="products_pager form-inline justify-content-center">
+                        <t t-call="website_sale.search">
+                            <t t-set="_classes">o_website_sale_search</t>
+                        </t>
+                        <t t-call="website_sale.pricelist_list">
+                            <t t-set="_classes">ml-2</t>
+                        </t>
+                        <t t-call="website.pager">
+                            <t t-set="_classes">ml-2</t>
+                        </t>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="d-none" id="products_grid_before"></div>
+                        <div class="col-lg-12" id="products_grid">
+                            <table width="100%">
+                                <tbody>
+                                    <tr t-ignore="true">
+                                        <td t-foreach="range(0,rows)" t-as="row" t-attf-width="#{100/rows}%"></td>
+                                    </tr>
+                                    <tr t-foreach="bins" t-as="tr_product">
+                                        <t t-foreach="tr_product" t-as="td_product">
+                                            <t t-if="td_product">
+                                                <t t-set="product" t-value="td_product['product']"/>
+                                                <td t-att-colspan="td_product['x'] != 1 and td_product['x']" t-att-rowspan="td_product['y'] != 1 and td_product['y']" t-attf-class="oe_product oe_grid oe-height-#{td_product['y']*2} #{ td_product['class'] }">
+                                                    <div class="oe_product_cart" t-att-data-publish="product.website_published and 'on' or 'off'">
+                                                        <t t-set="product_image_big" t-value="td_product['x']+td_product['y'] &gt; 2" />
+                                                        <t t-call="website_sale.products_item" />
+                                                    </div>
+                                                </td>
+                                            </t>
+                                            <td t-if="not td_product" class="oe-height-2" />
+                                        </t>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <t t-if="not bins">
+                                <div class="text-center text-muted oe_product">
+                                    <h3 class="css_editable_display mt8">No product defined.</h3>
+                                    <t t-if="search">
+                                        <p>
+                                            No results found for "<strong t-esc='search'/>".
+                                        </p>
+                                    </t>
+                                    <p groups="sales_team.group_sale_manager">Click <i>'New'</i> in the top-right corner to create your first product.</p>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                    <div class="products_pager form-inline justify-content-center mt-3">
+                        <t t-call="website.pager"/>
+                    </div>
+                </div>
+                <div class="oe_structure mb32" id="oe_structure_website_sale_products_2"/>
+            </div>
+            </xpath-->
+    </template>
+    
+    
+    <template id="website_search_box_location" inherit_id="website.website_search_box">
+          <xpath expr="//div[@class='input-group']" position="replace">
+            <div class="input-group" id="locaion_search">
+                <input type="text" name="search" class="search-query form-control oe_search_box" placeholder="Quartier, Ville, Pays, bien" t-att-value="search"/>
+                <div class="input-group-append">
+                     <button type="submit" class="btn btn-secondary oe_search_button" aria-label="Search" title="Search"><i class="fa fa-search"/></button>
+                </div>
+            </div>
+          </xpath> 
+    </template>
+
+
+
+
+</odoo>
+
+
